@@ -1441,25 +1441,7 @@ private[sql] case class DescribeCommandFormatted(
     )
     results ++= Seq(("Table Name : ", relation.tableMeta.carbonTableIdentifier.getTableName, ""))
     results ++= Seq(("CARBON Store Path : ", relation.tableMeta.storePath, ""))
-    results ++= Seq(("", "", ""), ("#Aggregate Tables", "", ""))
     val carbonTable = relation.tableMeta.carbonTable
-    val aggTables = carbonTable.getAggregateTablesName
-    if (aggTables.size == 0) {
-      results ++= Seq(("NONE", "", ""))
-    } else {
-      aggTables.asScala.foreach(aggTable => {
-        results ++= Seq(("", "", ""),
-          ("Agg Table :" + aggTable, "#Columns", "#AggregateType")
-        )
-        carbonTable.getDimensionByTableName(aggTable).asScala.foreach(dim => {
-          results ++= Seq(("", dim.getColName, ""))
-        })
-        carbonTable.getMeasureByTableName(aggTable).asScala.foreach(measure => {
-          results ++= Seq(("", measure.getColName, measure.getAggregateFunction))
-        })
-      }
-      )
-    }
     results ++= Seq(("", "", ""), ("##Detailed Column property", "", ""))
     if (colPropStr.length() > 0) {
       results ++= Seq((colPropStr, "", ""))
@@ -1468,27 +1450,9 @@ private[sql] case class DescribeCommandFormatted(
     }
     val dimension = carbonTable
       .getDimensionByTableName(relation.tableMeta.carbonTableIdentifier.getTableName);
-    results ++= getColumnGroups(dimension.asScala.toList)
     results.map { case (name, dataType, comment) =>
       Row(f"$name%-36s $dataType%-80s $comment%-72s")
     }
-  }
-
-  private def getColumnGroups(dimensions: List[CarbonDimension]): Seq[(String, String, String)] = {
-    var results: Seq[(String, String, String)] =
-        Seq(("", "", ""), ("##Column Group Information", "", ""))
-    val groupedDimensions = dimensions.groupBy(x => x.columnGroupId()).filter {
-      case (groupId, _) => groupId != -1
-    }.toSeq.sortBy(_._1)
-    val groups = groupedDimensions.map(colGroups => {
-      colGroups._2.map(dim => dim.getColName).mkString(", ")
-    })
-    var index = 1
-    groups.map { x =>
-      results = results:+(s"Column Group $index", x, "")
-      index = index + 1
-    }
-    results
   }
 }
 

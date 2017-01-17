@@ -34,7 +34,7 @@ import org.apache.carbondata.spark.exception.MalformedCarbonCommandException
 
 /**
  * This class contains data retention test cases
- * Created by Manohar on 5/9/2016.
+ * Created on 5/9/2016.
  */
 class DataRetentionTestCase extends QueryTest with BeforeAndAfterAll {
 

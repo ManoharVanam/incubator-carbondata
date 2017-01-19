@@ -658,7 +658,7 @@ object GlobalDictionaryUtil {
           false
         }
       } else {
-        throw new FileNotFoundException(
+        throw new DataLoadingException(
           "The given dictionary file path is not found!")
       }
     } else {
@@ -671,8 +671,8 @@ object GlobalDictionaryUtil {
           false
         }
       } else {
-        throw new FileNotFoundException(
-          "The given dictionary file path is not found!")
+        throw new DataLoadingException(
+          s"The given dictionary file path is not found : $allDictionaryPath")
       }
     }
   }

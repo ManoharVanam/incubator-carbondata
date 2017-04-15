@@ -1067,7 +1067,7 @@ public final class CarbonCommonConstants {
   /**
    * to enable offheap sort
    */
-  public static final String ENABLE_UNSAFE_SORT_DEFAULT = "false";
+  public static final String ENABLE_UNSAFE_SORT_DEFAULT = "true";
 
   /**
    * to enable offheap sort
@@ -1142,7 +1142,7 @@ public final class CarbonCommonConstants {
   /**
    * default property of unsafe processing
    */
-  public static final String ENABLE_UNSAFE_IN_QUERY_EXECUTION_DEFAULTVALUE = "false";
+  public static final String ENABLE_UNSAFE_IN_QUERY_EXECUTION_DEFAULTVALUE = "true";
 
   /**
    * property for offheap based processing

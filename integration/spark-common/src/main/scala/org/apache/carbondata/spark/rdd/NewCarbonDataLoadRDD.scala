@@ -399,6 +399,7 @@ class NewDataFrameLoaderRDD[K, V](
 
   override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
+    val value = carbonLoadModel.getSessionParams.getProperty("carbon.enable.vector.reader")
     val iter = new Iterator[(K, V)] {
       val partitionID = "0"
       val loadMetadataDetails = new LoadMetadataDetails()

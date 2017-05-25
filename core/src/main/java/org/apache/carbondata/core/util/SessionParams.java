@@ -30,11 +30,23 @@ public class SessionParams implements Serializable {
    * @return properties value
    */
   public String getProperty(String key) {
-    String s = sProps.get(key);
-    if (key == null) {
-      s = properties.getProperty(key);
+    // validate to key
+    validateKey(key);
+    String value = sProps.get(key);
+    if (null == value) {
+      value = properties.getProperty(key);
     }
-    return s;
+    validateValue(value);
+    return value;
+  }
+
+  private boolean validateValue(String value) {
+
+    return true;
+  }
+
+  private boolean validateKey(String key){
+    return true;
   }
 
   /**
@@ -46,7 +58,7 @@ public class SessionParams implements Serializable {
    */
   public String getProperty(String key, String defaultValue) {
     String value = sProps.get(key);
-    if (key == null) {
+    if (null == value) {
       value = properties.getProperty(key, defaultValue);
     }
     return value;
@@ -59,6 +71,8 @@ public class SessionParams implements Serializable {
    * @return properties value
    */
   public SessionParams addProperty(String key, String value) {
+    validateKey(key);
+    validateValue(value);
     sProps.put(key, value);
     return this;
   }

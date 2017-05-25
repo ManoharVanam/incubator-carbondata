@@ -25,6 +25,7 @@ import org.apache.carbondata.core.metadata.schema.table.column.CarbonDimension;
 import org.apache.carbondata.core.mutate.SegmentUpdateDetails;
 import org.apache.carbondata.core.statusmanager.LoadMetadataDetails;
 import org.apache.carbondata.core.statusmanager.SegmentUpdateStatusManager;
+import org.apache.carbondata.core.util.SessionParams;
 
 public class CarbonLoadModel implements Serializable {
   /**
@@ -172,6 +173,19 @@ public class CarbonLoadModel implements Serializable {
   private boolean preFetch;
 
   private String numberOfcolumns;
+
+  /**
+   * session parameters
+   */
+  private SessionParams sessionParams;
+
+  public SessionParams getSessionParams() {
+    return sessionParams;
+  }
+
+  public void setSessionParams(SessionParams sessionParams) {
+    this.sessionParams = sessionParams;
+  }
   /**
    * get escape char
    *

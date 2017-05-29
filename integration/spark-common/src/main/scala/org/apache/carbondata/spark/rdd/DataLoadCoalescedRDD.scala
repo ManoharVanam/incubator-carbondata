@@ -32,8 +32,6 @@ class DataLoadCoalescedRDD[T: ClassTag](
   extends CarbonRDD[DataLoadPartitionWrap[T]](prev.context, Nil) with
     InternalCompute[DataLoadPartitionWrap[T]] {
 
-  private val addedProperies = CarbonProperties.getInstance().getAddedProperies
-
   override def getPartitions: Array[Partition] = {
     new DataLoadPartitionCoalescer(prev, nodeList).run
   }
@@ -44,8 +42,6 @@ class DataLoadCoalescedRDD[T: ClassTag](
   }
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[DataLoadPartitionWrap[T]] = {
-    // Add the properties added in driver to executor.
-    CarbonProperties.getInstance().setProperties(addedProperies)
 
     new Iterator[DataLoadPartitionWrap[T]] {
       val iter = split.asInstanceOf[CoalescedRDDPartition].parents.iterator

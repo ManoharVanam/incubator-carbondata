@@ -32,8 +32,6 @@ class UpdateCoalescedRDD[T: ClassTag](
     nodeList: Array[String])
   extends CarbonRDD[T](prev.context, Nil) with InternalCompute[T] {
 
-  private val addedProperies = CarbonProperties.getInstance().getAddedProperies
-
   override def getPartitions: Array[Partition] = {
     new DataLoadPartitionCoalescer(prev, nodeList).run
   }
@@ -44,8 +42,6 @@ class UpdateCoalescedRDD[T: ClassTag](
   }
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[T] = {
-    // Add the properties added in driver to executor.
-    CarbonProperties.getInstance().setProperties(addedProperies)
     // This iterator combines data from all the parent partitions
     new Iterator[T] {
       val parentPartitionIter = split.asInstanceOf[CoalescedRDDPartition].parents.iterator

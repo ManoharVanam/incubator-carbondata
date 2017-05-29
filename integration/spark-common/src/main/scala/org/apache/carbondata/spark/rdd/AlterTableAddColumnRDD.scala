@@ -56,8 +56,6 @@ class AlterTableAddColumnRDD[K, V](sc: SparkContext,
   val lockType: String = CarbonProperties.getInstance.getProperty(CarbonCommonConstants.LOCK_TYPE,
     CarbonCommonConstants.CARBON_LOCK_TYPE_HDFS)
 
-  private val addedProperies = CarbonProperties.getInstance().getAddedProperies
-
   override def getPartitions: Array[Partition] = {
     newColumns.zipWithIndex.map { column =>
       new AddColumnPartition(id, column._2, column._1)
@@ -71,8 +69,6 @@ class AlterTableAddColumnRDD[K, V](sc: SparkContext,
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[(Int, String)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
-    // Add the properties added in driver to executor.
-    CarbonProperties.getInstance().setProperties(addedProperies)
     val status = CarbonCommonConstants.STORE_LOADSTATUS_SUCCESS
     val iter = new Iterator[(Int, String)] {
       try {

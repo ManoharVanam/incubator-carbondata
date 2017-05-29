@@ -42,8 +42,8 @@ import org.apache.carbondata.core.util.path.CarbonTablePath
 import org.apache.carbondata.hadoop.{CarbonInputFormat, CarbonInputSplit, CarbonProjection}
 import org.apache.carbondata.hadoop.util.{CarbonInputFormatUtil, SchemaReader}
 import org.apache.carbondata.processing.merger.TableMeta
-import org.apache.carbondata.spark.rdd.{CarbonRDD, InternalCompute}
 import org.apache.carbondata.spark.{CarbonFilters, CarbonOption}
+import org.apache.carbondata.spark.rdd.{CarbonRDD, InternalCompute}
 import org.apache.carbondata.spark.readsupport.SparkRowReadSupportImpl
 
 private[sql] case class CarbonDatasourceHadoopRelation(

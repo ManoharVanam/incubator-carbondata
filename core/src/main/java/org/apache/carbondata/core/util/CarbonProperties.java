@@ -22,9 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -50,11 +48,6 @@ public final class CarbonProperties {
    * porpeties .
    */
   private Properties carbonProperties;
-
-  /**
-   * Added properties on the fly.
-   */
-  private Map<String, String> setProperties = new HashMap<>();
 
   private Set<String> propertySet = new HashSet<String>();
 
@@ -85,7 +78,7 @@ public final class CarbonProperties {
     try {
       initPropertySet();
     } catch (IllegalAccessException e) {
-      LOGGER.error("Illelagal access to declared field" +e.getMessage());
+      LOGGER.error("Illelagal access to declared field" + e.getMessage());
     }
     if (null == carbonProperties.getProperty(CarbonCommonConstants.STORE_LOCATION)) {
       carbonProperties.setProperty(CarbonCommonConstants.STORE_LOCATION,
@@ -474,11 +467,32 @@ public final class CarbonProperties {
    * @return properties value
    */
   public String getProperty(String key) {
+    // get the property value from session parameters,
+    // if its null then get value from carbonProperties
+    String sessionPropertyValue = getSessionPropertyValue(key);
+    if (null != sessionPropertyValue) {
+      return sessionPropertyValue;
+    }
     //TODO temporary fix
     if ("carbon.leaf.node.size".equals(key)) {
       return "120000";
     }
     return carbonProperties.getProperty(key);
+  }
+
+  /**
+   * returns session property value
+   *
+   * @param key
+   * @return
+   */
+  private String getSessionPropertyValue(String key) {
+    String value = null;
+    SessionParams sessionParams = ThreadLocalSessionParams.getSessionParams();
+    if (null != sessionParams) {
+      value = sessionParams.getProperty(key);
+    }
+    return value;
   }
 
   /**
@@ -503,24 +517,8 @@ public final class CarbonProperties {
    * @return properties value
    */
   public CarbonProperties addProperty(String key, String value) {
-    setProperties.put(key, value);
     carbonProperties.setProperty(key, value);
     return this;
-  }
-
-  /**
-   * Get all the added properties.
-   * @return
-   */
-  public Map<String, String> getAddedProperies() {
-    return setProperties;
-  }
-
-  public void setProperties(Map<String, String> newProperties) {
-    setProperties.putAll(newProperties);
-    for (Map.Entry<String, String> entry : newProperties.entrySet()) {
-      carbonProperties.setProperty(entry.getKey(), entry.getValue());
-    }
   }
 
   private ColumnarFormatVersion getDefaultFormatVersion() {

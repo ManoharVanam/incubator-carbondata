@@ -21,7 +21,7 @@ import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
 import org.apache.spark.sql.hive.{CarbonIUDAnalysisRule, CarbonMetastore}
 
 import org.apache.carbondata.core.constants.CarbonCommonConstants
-import org.apache.carbondata.core.util.{CarbonProperties, SessionParams, ThreadLocalSessionParams}
+import org.apache.carbondata.core.util. CarbonProperties
 import org.apache.carbondata.hadoop.readsupport.impl.RawDataReadSupport
 import org.apache.carbondata.spark.rdd.SparkReadSupport
 
@@ -30,7 +30,6 @@ case class CarbonEnv(carbonMetastore: CarbonMetastore)
 object CarbonEnv {
 
   @volatile private var carbonEnv: CarbonEnv = _
-  var sessionParams: SessionParams = _
 
   // set readsupport class global so that the executor can get it.
   SparkReadSupport.readSupportClass = classOf[RawDataReadSupport]
@@ -39,8 +38,6 @@ object CarbonEnv {
 
   def init(sqlContext: SQLContext): Unit = {
     if (!initialized) {
-      sessionParams = new SessionParams()
-      ThreadLocalSessionParams.setSessionParams(sessionParams)
       val cc = sqlContext.asInstanceOf[CarbonContext]
       val catalog = new CarbonMetastore(cc, cc.storePath, cc.hiveClientInterface, "")
       carbonEnv = CarbonEnv(catalog)

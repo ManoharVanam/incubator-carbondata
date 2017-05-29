@@ -35,8 +35,6 @@ class CarbonDropTableRDD[V: ClassTag](
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
-  private val addedProperies = CarbonProperties.getInstance().getAddedProperies
-
   override def getPartitions: Array[Partition] = {
     val splits = CarbonQueryUtil.getTableSplits(databaseName, tableName, null)
     splits.zipWithIndex.map { s =>
@@ -48,10 +46,7 @@ class CarbonDropTableRDD[V: ClassTag](
   }
   override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[V] = {
 
-    // Add the properties added in driver to executor.
-    CarbonProperties.getInstance().setProperties(addedProperies)
-
-    val iter = new Iterator[V] {
+      val iter = new Iterator[V] {
       // TODO: Clear Btree from memory
 
       var havePair = false

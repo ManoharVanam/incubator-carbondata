@@ -516,7 +516,7 @@ private[sql] class CarbonLateDecodeStrategy extends SparkStrategy {
       } else if (System.getProperty(CarbonCommonConstants.ENABLE_VECTOR_READER) != null) {
         System.getProperty(CarbonCommonConstants.ENABLE_VECTOR_READER)
       } else {
-        CarbonEnv.getInstance(sqlContext.sparkSession).sessionParams
+        CarbonProperties.getInstance()
           .getProperty(CarbonCommonConstants.ENABLE_VECTOR_READER,
           CarbonCommonConstants.ENABLE_VECTOR_READER_DEFAULT)
       }

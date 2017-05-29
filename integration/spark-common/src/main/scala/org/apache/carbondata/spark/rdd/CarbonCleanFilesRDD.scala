@@ -38,7 +38,6 @@ class CarbonCleanFilesRDD[V: ClassTag](
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
-  private val addedProperies = CarbonProperties.getInstance().getAddedProperies
 
   override def getPartitions: Array[Partition] = {
     val splits = CarbonQueryUtil.getTableSplits(databaseName, tableName, null)
@@ -50,8 +49,6 @@ class CarbonCleanFilesRDD[V: ClassTag](
   }
   override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[V] = {
     val iter = new Iterator[(V)] {
-      // Add the properties added in driver to executor.
-      CarbonProperties.getInstance().setProperties(addedProperies)
       val split = theSplit.asInstanceOf[CarbonLoadPartition]
       logInfo("Input split: " + split.serializableHadoopSplit.value)
       // TODO call CARBON delete API

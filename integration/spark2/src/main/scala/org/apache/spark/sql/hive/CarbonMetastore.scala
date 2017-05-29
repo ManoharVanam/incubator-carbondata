@@ -105,7 +105,7 @@ case class DictionaryMap(dictionaryMap: Map[String, Boolean]) {
   }
 }
 
-class CarbonMetastore(conf: RuntimeConfig, val storePath: String, sessionParams: SessionParams) {
+class CarbonMetastore(conf: RuntimeConfig, val storePath: String) {
 
   @transient
   val LOGGER = LogServiceFactory.getLogService("org.apache.spark.sql.CarbonMetastoreCatalog")
@@ -202,15 +202,15 @@ class CarbonMetastore(conf: RuntimeConfig, val storePath: String, sessionParams:
     // if zookeeper is configured as carbon lock type.
     val zookeeperurl = conf.get(CarbonCommonConstants.ZOOKEEPER_URL, null)
     if (null != zookeeperurl) {
-      sessionParams.addProperty(CarbonCommonConstants.ZOOKEEPER_URL, zookeeperurl)
+      CarbonProperties.getInstance().addProperty(CarbonCommonConstants.ZOOKEEPER_URL, zookeeperurl)
     }
     if (metadataPath == null) {
       return null
     }
     // if no locktype is configured and store type is HDFS set HDFS lock as default
-    if (null == sessionParams.getProperty(CarbonCommonConstants.LOCK_TYPE) &&
+    if (null == CarbonProperties.getInstance().getProperty(CarbonCommonConstants.LOCK_TYPE) &&
         FileType.HDFS == FileFactory.getFileType(metadataPath)) {
-      sessionParams.addProperty(CarbonCommonConstants.LOCK_TYPE,
+      CarbonProperties.getInstance().addProperty(CarbonCommonConstants.LOCK_TYPE,
           CarbonCommonConstants.CARBON_LOCK_TYPE_HDFS
         )
       LOGGER.info("Default lock type HDFSLOCK is configured")

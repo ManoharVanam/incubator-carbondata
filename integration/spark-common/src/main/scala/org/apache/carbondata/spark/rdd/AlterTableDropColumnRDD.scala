@@ -52,8 +52,6 @@ class AlterTableDropColumnRDD[K, V](sc: SparkContext,
     carbonStorePath: String)
   extends CarbonRDD[(Int, String)](sc, Nil) with InternalCompute[(Int, String)] {
 
-  private val addedProperies = CarbonProperties.getInstance().getAddedProperies
-
   override def getPartitions: Array[Partition] = {
     newColumns.zipWithIndex.map { column =>
       new DropColumnPartition(id, column._2, column._1)
@@ -67,8 +65,6 @@ class AlterTableDropColumnRDD[K, V](sc: SparkContext,
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[(Int, String)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
-    // Add the properties added in driver to executor.
-    CarbonProperties.getInstance().setProperties(addedProperies)
     val status = CarbonCommonConstants.STORE_LOADSTATUS_SUCCESS
     val iter = new Iterator[(Int, String)] {
       try {

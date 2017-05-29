@@ -25,29 +25,36 @@ class SetCommandTestCase  extends QueryTest with BeforeAndAfterAll {
 
   test("test set command") {
 
-    sql("set spark.eventLog.enabled=2").show(false)
-    sql("set spark.executor.memory=manu").show(false)
-    sql("set").show(false)
-    sql("set -v").show(false)
-//    sql("drop table if exists abc")
+//    sql("set spark.eventLog.enabled=2").show(false)
+//    sql("set spark.eventLog.enabled").show(false)
+//    sql("set spark.executor.memory=manu").show(false)
+//    sql("set").show(false)
+//    sql("set -v").show(false)
+//    sql("reset").show(false)
+    sql("drop table if exists abc")
 //    sql("create table abc(name string, value string) stored by 'carbondata'")
 //    sql("set carbon.enable.vector.reader=false")
 //    sql("insert into abc select 'manu', '123'")
-//    sql(
-//      "CREATE table abc (ID int, date String, country String, name " +
-//      "String," +
-//      "phonetype String, serialname String, salary int) stored by 'org.apache.carbondata.format'"
-//
-//    )
-//    sql("set carbon.enable.vector.reader=false").show(false)
+    sql(
+      "CREATE table abc (ID int, date String, country String, name " +
+      "String," +
+      "phonetype String, serialname String, salary int) stored by 'org.apache.carbondata.format'"
+
+    )
+
+    sql("set carbon.enable.vector.reader=false").show(false)
+    sql("set manu=false").show(false)
 //    sql("set").show(false)
 //    sql("set carbon.enable.vector.reader").show(false)
-   /* sql(s"LOAD DATA LOCAL INPATH '$resourcesPath/dataretention1.csv' INTO TABLE abc " +
-        "OPTIONS('DELIMITER' =  ',')")
+//    sql(s"LOAD DATA LOCAL INPATH '$resourcesPath/dataretention1.csv' INTO TABLE abc " +
+//        "OPTIONS('DELIMITER' =  ',')")
     sql("select * from abc").show(false)
-    //    sql("set key1=value1")
+    sql("set").show(false)
+    sql("reset").show(false)
+    sql("set").show(false)
+//        sql("set key1=value1")
 //    sql("select * from abc").show(false)
-    sql("DELETE SEGMENT 0 FROM TABLE abc")*/
+//    sql("DELETE SEGMENT 0 FROM TABLE abc")
 
 //    assert(CarbonProperties.getInstance().getProperty("key1").equals("value1"), "Set command does not work" )
 //    assert(sqlContext.getConf("key1").equals("value1"), "Set command does not work" )

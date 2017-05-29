@@ -177,7 +177,8 @@ case class ColumnDistinctValues(values: Array[String], rowCount: Long) extends S
 class CarbonAllDictionaryCombineRDD(
     prev: RDD[(String, Iterable[String])],
     model: DictionaryLoadModel)
-  extends RDD[(Int, ColumnDistinctValues)](prev) {
+  extends CarbonRDD[(Int, ColumnDistinctValues)](prev) with
+    InternalCompute[(Int, ColumnDistinctValues)] {
 
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
 
@@ -186,6 +187,10 @@ class CarbonAllDictionaryCombineRDD(
   }
 
   override def compute(split: Partition, context: TaskContext
+  ): Iterator[(Int, ColumnDistinctValues)] = {
+    super.compute(this, split, context)
+  }
+    override def internalCompute(split: Partition, context: TaskContext
   ): Iterator[(Int, ColumnDistinctValues)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
     // Add the properties added in driver to executor.
@@ -274,13 +279,18 @@ class StringArrayRow(var values: Array[String]) extends Row {
 class CarbonBlockDistinctValuesCombineRDD(
     prev: RDD[Row],
     model: DictionaryLoadModel)
-  extends RDD[(Int, ColumnDistinctValues)](prev) {
+  extends CarbonRDD[(Int, ColumnDistinctValues)](prev) with
+    InternalCompute[(Int, ColumnDistinctValues)] {
 
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
 
   override def getPartitions: Array[Partition] = firstParent[Row].partitions
 
   override def compute(split: Partition,
+      context: TaskContext): Iterator[(Int, ColumnDistinctValues)] = {
+    super.compute(this, split, context)
+  }
+  override def internalCompute(split: Partition,
       context: TaskContext): Iterator[(Int, ColumnDistinctValues)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
     // Add the properties added in driver to executor.
@@ -339,13 +349,18 @@ class CarbonBlockDistinctValuesCombineRDD(
 class CarbonGlobalDictionaryGenerateRDD(
     prev: RDD[(Int, ColumnDistinctValues)],
     model: DictionaryLoadModel)
-  extends RDD[(Int, String, Boolean)](prev) {
+  extends CarbonRDD[(Int, String, Boolean)](prev) with InternalCompute[(Int, String, Boolean)]{
 
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
 
   override def getPartitions: Array[Partition] = firstParent[(Int, ColumnDistinctValues)].partitions
 
   override def compute(split: Partition, context: TaskContext): Iterator[(Int, String, Boolean)] = {
+    super.compute(this, split, context)
+  }
+
+  override def internalCompute(split: Partition,
+      context: TaskContext): Iterator[(Int, String, Boolean)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
     // Add the properties added in driver to executor.
     CarbonProperties.getInstance().setProperties(addedProperies)
@@ -545,7 +560,8 @@ class CarbonColumnDictGenerateRDD(carbonLoadModel: CarbonLoadModel,
     dimensions: Array[CarbonDimension],
     hdfsLocation: String,
     dictFolderPath: String)
-  extends RDD[(Int, ColumnDistinctValues)](sparkContext, Nil) {
+  extends CarbonRDD[(Int, ColumnDistinctValues)](sparkContext, Nil) with
+    InternalCompute[(Int, ColumnDistinctValues)] {
 
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
 
@@ -560,6 +576,10 @@ class CarbonColumnDictGenerateRDD(carbonLoadModel: CarbonLoadModel,
   }
 
   override def compute(split: Partition, context: TaskContext)
+  : Iterator[(Int, ColumnDistinctValues)] = {
+    super.compute(this, split, context)
+  }
+  override def internalCompute(split: Partition, context: TaskContext)
   : Iterator[(Int, ColumnDistinctValues)] = {
     // Add the properties added in driver to executor.
     CarbonProperties.getInstance().setProperties(addedProperies)

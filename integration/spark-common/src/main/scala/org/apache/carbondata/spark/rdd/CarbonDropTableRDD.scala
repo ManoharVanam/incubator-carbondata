@@ -22,7 +22,7 @@ import scala.reflect.ClassTag
 import org.apache.spark.{Partition, SparkContext, TaskContext}
 import org.apache.spark.rdd.RDD
 
-import org.apache.carbondata.core.util.CarbonProperties
+import org.apache.carbondata.core.util.{CarbonProperties, SessionParams, ThreadLocalSessionParams}
 import org.apache.carbondata.spark.Value
 import org.apache.carbondata.spark.util.CarbonQueryUtil
 
@@ -31,7 +31,7 @@ class CarbonDropTableRDD[V: ClassTag](
     valueClass: Value[V],
     databaseName: String,
     tableName: String)
-  extends RDD[V](sc, Nil) {
+  extends CarbonRDD[V](sc, Nil) with InternalCompute[V] {
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
@@ -43,8 +43,10 @@ class CarbonDropTableRDD[V: ClassTag](
       new CarbonLoadPartition(id, s._2, s._1)
     }
   }
-
   override def compute(theSplit: Partition, context: TaskContext): Iterator[V] = {
+    super.compute(this, theSplit, context)
+  }
+  override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[V] = {
 
     // Add the properties added in driver to executor.
     CarbonProperties.getInstance().setProperties(addedProperies)

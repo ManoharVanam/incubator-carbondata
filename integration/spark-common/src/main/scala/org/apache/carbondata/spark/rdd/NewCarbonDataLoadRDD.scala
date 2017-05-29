@@ -42,7 +42,7 @@ import org.apache.carbondata.common.logging.LogServiceFactory
 import org.apache.carbondata.common.logging.impl.StandardLogService
 import org.apache.carbondata.core.constants.CarbonCommonConstants
 import org.apache.carbondata.core.statusmanager.LoadMetadataDetails
-import org.apache.carbondata.core.util.{CarbonProperties, CarbonTimeStatisticsFactory}
+import org.apache.carbondata.core.util.{CarbonProperties, CarbonTimeStatisticsFactory, SessionParams, ThreadLocalSessionParams}
 import org.apache.carbondata.processing.csvload.BlockDetails
 import org.apache.carbondata.processing.csvload.CSVInputFormat
 import org.apache.carbondata.processing.csvload.CSVRecordReaderIterator
@@ -176,7 +176,7 @@ class NewCarbonDataLoadRDD[K, V](
     loadCount: Integer,
     blocksGroupBy: Array[(String, Array[BlockDetails])],
     isTableSplitPartition: Boolean)
-  extends RDD[(K, V)](sc, Nil) {
+  extends CarbonRDD[(K, V)](sc, Nil) with InternalCompute[(K, V)] {
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
@@ -220,8 +220,10 @@ class NewCarbonDataLoadRDD[K, V](
   override def checkpoint() {
     // Do nothing. Hadoop RDD should not be checkpointed.
   }
-
   override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
+    super.compute(this, theSplit, context)
+  }
+  override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
     val iter = new Iterator[(K, V)] {
       var partitionID = "0"
@@ -387,19 +389,21 @@ class NewCarbonDataLoadRDD[K, V](
  *  @see org.apache.carbondata.processing.newflow.DataLoadExecutor
  */
 class NewDataFrameLoaderRDD[K, V](
-                                   sc: SparkContext,
-                                   result: DataLoadResult[K, V],
-                                   carbonLoadModel: CarbonLoadModel,
-                                   loadCount: Integer,
-                                   tableCreationTime: Long,
-                                   schemaLastUpdatedTime: Long,
-                                   prev: DataLoadCoalescedRDD[Row]) extends RDD[(K, V)](prev) {
+    sc: SparkContext,
+    result: DataLoadResult[K, V],
+    carbonLoadModel: CarbonLoadModel,
+    loadCount: Integer,
+    tableCreationTime: Long,
+    schemaLastUpdatedTime: Long,
+    prev: DataLoadCoalescedRDD[Row]) extends CarbonRDD[(K, V)](prev) with InternalCompute[(K, V)] {
 
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
-
   override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
+    super.compute(this, theSplit, context)
+  }
+  override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
+
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
-    val value = carbonLoadModel.getSessionParams.getProperty("carbon.enable.vector.reader")
     val iter = new Iterator[(K, V)] {
       val partitionID = "0"
       val loadMetadataDetails = new LoadMetadataDetails()
@@ -587,11 +591,14 @@ class PartitionTableDataLoaderRDD[K, V](
     loadCount: Integer,
     tableCreationTime: Long,
     schemaLastUpdatedTime: Long,
-    prev: RDD[Row]) extends RDD[(K, V)](prev) {
+    prev: RDD[Row]) extends CarbonRDD[(K, V)](prev) with InternalCompute[(K, V)] {
 
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
 
   override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
+    super.compute(this, theSplit, context)
+  }
+  override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
     val iter = new Iterator[(K, V)] {
       val partitionID = "0"

@@ -59,7 +59,7 @@ class CarbonMergerRDD[K, V](
     carbonLoadModel: CarbonLoadModel,
     carbonMergerMapping: CarbonMergerMapping,
     confExecutorsTemp: String)
-  extends RDD[(K, V)](sc, Nil) {
+  extends CarbonRDD[(K, V)](sc, Nil) with InternalCompute[(K, V)] {
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
   sc.setLocalProperty("spark.job.interruptOnCancel", "true")
@@ -77,6 +77,9 @@ class CarbonMergerRDD[K, V](
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
 
   override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
+    super.compute(this, theSplit, context)
+  }
+  override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
     // Add the properties added in driver to executor.
     CarbonProperties.getInstance().setProperties(addedProperies)

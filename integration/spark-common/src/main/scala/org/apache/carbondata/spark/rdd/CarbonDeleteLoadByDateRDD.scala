@@ -40,7 +40,7 @@ class CarbonDeleteLoadByDateRDD[K, V](
     dimTableName: String,
     storePath: String,
     loadMetadataDetails: List[LoadMetadataDetails])
-  extends RDD[(K, V)](sc, Nil) {
+  extends CarbonRDD[(K, V)](sc, Nil) with InternalCompute[(K, V)] {
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
@@ -54,6 +54,9 @@ class CarbonDeleteLoadByDateRDD[K, V](
   }
 
   override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
+    super.compute(this, theSplit, context)
+  }
+  override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
     new Iterator[(K, V)] {
       // Add the properties added in driver to executor.
       CarbonProperties.getInstance().setProperties(addedProperies)

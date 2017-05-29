@@ -15,20 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.carbondata.core.util;
+package org.apache.carbondata.spark.rdd
 
-/**
- * This class maintains ThreadLocal session params
- */
-public class ThreadLocalSessionParams {
-  static final InheritableThreadLocal<SessionParams> threadLocal =
-      new InheritableThreadLocal<SessionParams>();
+import org.apache.spark.{Partition, TaskContext}
 
-  public static void setSessionParams(SessionParams sessionParams) {
-    threadLocal.set(sessionParams);
-  }
-
-  public static SessionParams getSessionParams() {
-    return threadLocal.get();
-  }
+trait InternalCompute[T] {
+  def internalCompute(split: Partition,
+      context: TaskContext): Iterator[T]
 }

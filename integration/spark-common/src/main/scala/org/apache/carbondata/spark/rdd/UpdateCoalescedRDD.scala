@@ -23,13 +23,14 @@ import org.apache.spark._
 import org.apache.spark.rdd.{CoalescedRDDPartition, DataLoadPartitionCoalescer, RDD}
 
 import org.apache.carbondata.core.util.CarbonProperties
+import org.apache.carbondata.spark.rdd.{CarbonRDD, InternalCompute}
 
 // This RDD distributes previous RDD data based on number of nodes. i.e., one partition for one node
 
 class UpdateCoalescedRDD[T: ClassTag](
     @transient var prev: RDD[T],
     nodeList: Array[String])
-  extends RDD[T](prev.context, Nil) {
+  extends CarbonRDD[T](prev.context, Nil) with InternalCompute[T] {
 
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
 
@@ -38,6 +39,10 @@ class UpdateCoalescedRDD[T: ClassTag](
   }
 
   override def compute(split: Partition,
+      context: TaskContext): Iterator[T] = {
+    super.compute(this, split, context)
+  }
+  override def internalCompute(split: Partition,
       context: TaskContext): Iterator[T] = {
     // Add the properties added in driver to executor.
     CarbonProperties.getInstance().setProperties(addedProperies)

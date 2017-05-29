@@ -35,7 +35,7 @@ class CarbonDeleteLoadRDD[V: ClassTag](
     databaseName: String,
     tableName: String,
     partitioner: Partitioner)
-  extends RDD[V](sc, Nil) {
+  extends CarbonRDD[V](sc, Nil) with InternalCompute[V] {
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
   private val addedProperies = CarbonProperties.getInstance().getAddedProperies
@@ -48,6 +48,9 @@ class CarbonDeleteLoadRDD[V: ClassTag](
   }
 
   override def compute(theSplit: Partition, context: TaskContext): Iterator[V] = {
+    super.compute(this, theSplit, context)
+  }
+  override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[V] = {
     val iter = new Iterator[V] {
       // Add the properties added in driver to executor.
       CarbonProperties.getInstance().setProperties(addedProperies)

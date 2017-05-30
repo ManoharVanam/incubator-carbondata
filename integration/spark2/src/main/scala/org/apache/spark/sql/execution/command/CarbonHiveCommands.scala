@@ -57,6 +57,7 @@ case class CarbonSetCommand(command: SetCommand)
             CarbonEnv.getInstance(sparkSession).sessionParams
               .addProperty(key, value)
           }
+        case _ =>
 
       }
     }

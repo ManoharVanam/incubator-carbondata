@@ -19,45 +19,119 @@ package org.apache.carbondata.spark.testsuite.commands
 import org.apache.spark.sql.common.util.QueryTest
 import org.scalatest.BeforeAndAfterAll
 
+import org.apache.carbondata.core.exception.InvalidConfigurationException
 import org.apache.carbondata.core.util.CarbonProperties
 
-class SetCommandTestCase  extends QueryTest with BeforeAndAfterAll {
+class SetCommandTestCase extends QueryTest with BeforeAndAfterAll {
 
   test("test set command") {
-
-//    sql("set spark.eventLog.enabled=2").show(false)
-//    sql("set spark.eventLog.enabled").show(false)
-//    sql("set spark.executor.memory=manu").show(false)
-//    sql("set").show(false)
-//    sql("set -v").show(false)
-//    sql("reset").show(false)
-    sql("drop table if exists abc")
-//    sql("create table abc(name string, value string) stored by 'carbondata'")
-//    sql("set carbon.enable.vector.reader=false")
-//    sql("insert into abc select 'manu', '123'")
-    sql(
-      "CREATE table abc (ID int, date String, country String, name " +
-      "String," +
-      "phonetype String, serialname String, salary int) stored by 'org.apache.carbondata.format'"
-
-    )
-
-    sql("set carbon.enable.vector.reader=false").show(false)
-    sql("set manu=false").show(false)
-//    sql("set").show(false)
-//    sql("set carbon.enable.vector.reader").show(false)
-//    sql(s"LOAD DATA LOCAL INPATH '$resourcesPath/dataretention1.csv' INTO TABLE abc " +
-//        "OPTIONS('DELIMITER' =  ',')")
-    sql("select * from abc").show(false)
-    sql("set").show(false)
-    sql("reset").show(false)
-    sql("set").show(false)
-//        sql("set key1=value1")
-//    sql("select * from abc").show(false)
-//    sql("DELETE SEGMENT 0 FROM TABLE abc")
-
-//    assert(CarbonProperties.getInstance().getProperty("key1").equals("value1"), "Set command does not work" )
-//    assert(sqlContext.getConf("key1").equals("value1"), "Set command does not work" )
+    checkAnswer(sql("set carbon=false"), sql("set carbon"))
   }
 
+  test("test set command for enable.unsafe.sort=true") {
+    checkAnswer(sql("set enable.unsafe.sort=true"), sql("set enable.unsafe.sort"))
+  }
+
+  test("test set command for enable.unsafe.sort for invalid option") {
+    try {
+      checkAnswer(sql("set enable.unsafe.sort=123"), sql("set enable.unsafe.sort"))
+      assert(false)
+    } catch {
+      case ex: InvalidConfigurationException =>
+        assert(true)
+    }
+  }
+  //enable.unsafe.in.query.processing
+  test("test set command for enable.offheap.sort=true") {
+    checkAnswer(sql("set enable.offheap.sort=true"), sql("set enable.offheap.sort"))
+  }
+
+  test("test set command for enable.offheap.sort for invalid option") {
+    try {
+      checkAnswer(sql("set enable.offheap.sort=123"), sql("set enable.offheap.sort"))
+      assert(false)
+    } catch {
+      case ex: InvalidConfigurationException =>
+        assert(true)
+    }
+  }
+  test("test set command for enable.unsafe.in.query.processing=true") {
+    checkAnswer(sql("set enable.unsafe.in.query.processing=true"),
+      sql("set enable.unsafe.in.query.processing"))
+  }
+
+  test("test set command for enable.unsafe.in.query.processing for invalid option") {
+    try {
+      checkAnswer(sql("set enable.unsafe.in.query.processing=123"),
+        sql("set enable.unsafe.in.query.processing"))
+      assert(false)
+    } catch {
+      case ex: InvalidConfigurationException =>
+        assert(true)
+    }
+  }
+  //carbon.custom.block.distribution
+  test("test set command for carbon.custom.block.distribution=true") {
+    checkAnswer(sql("set carbon.custom.block.distribution=true"),
+      sql("set carbon.custom.block.distribution"))
+  }
+
+  test("test set command for carbon.custom.block.distribution for invalid option") {
+    try {
+      checkAnswer(sql("set carbon.custom.block.distribution=123"),
+        sql("set carbon.custom.block.distribution"))
+      assert(false)
+    } catch {
+      case ex: InvalidConfigurationException =>
+        assert(true)
+    }
+  }
+  // enable.data.loading.statistics
+  test("test set command for enable.data.loading.statistics=true") {
+    checkAnswer(sql("set enable.data.loading.statistics=true"),
+      sql("set enable.data.loading.statistics"))
+  }
+
+  test("test set command for carbon.custom.block.distribution for invalid option") {
+    try {
+      checkAnswer(sql("set enable.data.loading.statistics=123"),
+        sql("set enable.data.loading.statistics"))
+      assert(false)
+    } catch {
+      case ex: InvalidConfigurationException =>
+        assert(true)
+    }
+  }
+  // enable.inmemory.merge.sort
+  test("test set command for enable.inmemory.merge.sort=true") {
+    checkAnswer(sql("set enable.inmemory.merge.sort=true"),
+      sql("set enable.inmemory.merge.sort"))
+  }
+
+  test("test set enable.inmemory.merge.sort for invalid option") {
+    try {
+      checkAnswer(sql("set enable.inmemory.merge.sort=123"),
+        sql("set enable.inmemory.merge.sort"))
+      assert(false)
+    } catch {
+      case ex: InvalidConfigurationException =>
+        assert(true)
+    }
+  }
+  // use.offheap.in.query.processing
+  test("test set command for use.offheap.in.query.processing=true") {
+    checkAnswer(sql("set use.offheap.in.query.processing=true"),
+      sql("set enable.inmemory.merge.sort"))
+  }
+
+  test("test set use.offheap.in.query.processing for invalid option") {
+    try {
+      checkAnswer(sql("set use.offheap.in.query.processing=123"),
+        sql("set use.offheap.in.query.processing"))
+      assert(false)
+    } catch {
+      case ex: InvalidConfigurationException =>
+        assert(true)
+    }
+  }
 }

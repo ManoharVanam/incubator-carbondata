@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.carbondata.common.logging.LogService;
+import org.apache.carbondata.common.logging.LogServiceFactory;
+import org.apache.carbondata.core.cache.CacheProvider;
 import org.apache.carbondata.core.exception.InvalidConfigurationException;
 import static org.apache.carbondata.core.constants.CarbonCommonConstants.*;
 
@@ -31,6 +34,9 @@ import org.apache.commons.lang.StringUtils;
  * This class maintains carbon session params
  */
 public class SessionParams implements Serializable {
+
+  private static final LogService LOGGER =
+      LogServiceFactory.getLogService(CacheProvider.class.getName());
 
   private Map<String, String> sProps;
 
@@ -57,6 +63,7 @@ public class SessionParams implements Serializable {
   public SessionParams addProperty(String key, String value) throws InvalidConfigurationException {
     boolean isValidConf = validateKeyValue(key, value);
     if (isValidConf) {
+      LOGGER.audit("The key " + key + " with value " + value + " added in the session param");
       sProps.put(key, value);
     }
     return this;
@@ -65,29 +72,12 @@ public class SessionParams implements Serializable {
   private boolean validateKeyValue(String key, String value) throws InvalidConfigurationException {
     boolean isValid;
     switch (key) {
-      case SORT_TEMP_FILE_NO_OF_RECORDS_FOR_COMPRESSION:
-        isValid = validateIntRange(value, "1", null);
-        if (!isValid) {
-          handleFailure(key, value);
-        }
-        break;
-      case DETAIL_QUERY_BATCH_SIZE:
-      case CARBON_PREFETCH_BUFFERSIZE:
-        isValid = validateIntRange(value, null, null);
-        if (!isValid) {
-          handleFailure(key, value);
-        }
-        break;
-      case IS_SORT_TEMP_FILE_COMPRESSION_ENABLED:
-      case AGGREAGATE_COLUMNAR_KEY_BLOCK:
       case ENABLE_DATA_LOADING_STATISTICS:
-      case CARBON_MERGE_SORT_PREFETCH:
       case ENABLE_UNSAFE_SORT:
       case ENABLE_OFFHEAP_SORT:
       case ENABLE_INMEMORY_MERGE_SORT:
       case ENABLE_UNSAFE_IN_QUERY_EXECUTION:
       case USE_OFFHEAP_IN_QUERY_PROCSSING:
-      case USE_PREFETCH_WHILE_LOADING:
       case CARBON_CUSTOM_BLOCK_DISTRIBUTION:
         isValid = validateBoolean(value);
         if (!isValid) {
@@ -96,6 +86,8 @@ public class SessionParams implements Serializable {
         break;
       default:
         isValid = false;
+        throw new InvalidConfigurationException(
+            "The key " + key + " not supported for dynamic configuration.");
     }
     return isValid;
   }
@@ -129,6 +121,8 @@ public class SessionParams implements Serializable {
 
   private boolean validateBoolean(String value) {
     if (null == value) {
+      return false;
+    } else if (!("false".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value))) {
       return false;
     }
     return true;

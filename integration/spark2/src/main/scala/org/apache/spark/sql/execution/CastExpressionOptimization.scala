@@ -35,8 +35,7 @@ object CastExpressionOptimization {
 
 
   def typeCastStringToLong(v: Any): Any = {
-    val parser: SimpleDateFormat = new SimpleDateFormat(
-      CarbonProperties.getInstance
+    val parser: SimpleDateFormat = new SimpleDateFormat(CarbonProperties.getInstance
       .getProperty(CarbonCommonConstants.CARBON_TIMESTAMP_FORMAT,
         CarbonCommonConstants.CARBON_TIMESTAMP_DEFAULT_FORMAT))
     try {

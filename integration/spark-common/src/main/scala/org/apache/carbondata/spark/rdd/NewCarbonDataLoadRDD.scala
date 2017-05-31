@@ -172,7 +172,7 @@ class NewCarbonDataLoadRDD[K, V](
     loadCount: Integer,
     blocksGroupBy: Array[(String, Array[BlockDetails])],
     isTableSplitPartition: Boolean)
-  extends CarbonRDD[(K, V)](sc, Nil) with InternalCompute[(K, V)] {
+  extends CarbonRDD[(K, V)](sc, Nil) {
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
@@ -213,9 +213,6 @@ class NewCarbonDataLoadRDD[K, V](
 
   override def checkpoint() {
     // Do nothing. Hadoop RDD should not be checkpointed.
-  }
-  override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
-    super.compute(this, theSplit, context)
   }
   override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
@@ -389,11 +386,7 @@ class NewDataFrameLoaderRDD[K, V](
     loadCount: Integer,
     tableCreationTime: Long,
     schemaLastUpdatedTime: Long,
-    prev: DataLoadCoalescedRDD[Row]) extends CarbonRDD[(K, V)](prev) with InternalCompute[(K, V)] {
-
-  override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
-    super.compute(this, theSplit, context)
-  }
+    prev: DataLoadCoalescedRDD[Row]) extends CarbonRDD[(K, V)](prev) {
   override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
 
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
@@ -584,11 +577,7 @@ class PartitionTableDataLoaderRDD[K, V](
     loadCount: Integer,
     tableCreationTime: Long,
     schemaLastUpdatedTime: Long,
-    prev: RDD[Row]) extends CarbonRDD[(K, V)](prev) with InternalCompute[(K, V)] {
-
-  override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
-    super.compute(this, theSplit, context)
-  }
+    prev: RDD[Row]) extends CarbonRDD[(K, V)](prev) {
   override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
     val iter = new Iterator[(K, V)] {

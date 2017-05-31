@@ -59,7 +59,7 @@ class CarbonMergerRDD[K, V](
     carbonLoadModel: CarbonLoadModel,
     carbonMergerMapping: CarbonMergerMapping,
     confExecutorsTemp: String)
-  extends CarbonRDD[(K, V)](sc, Nil) with InternalCompute[(K, V)] {
+  extends CarbonRDD[(K, V)](sc, Nil) {
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
   sc.setLocalProperty("spark.job.interruptOnCancel", "true")
@@ -73,10 +73,6 @@ class CarbonMergerRDD[K, V](
   val databaseName = carbonMergerMapping.databaseName
   val factTableName = carbonMergerMapping.factTableName
   val tableId = carbonMergerMapping.tableId
-
-  override def compute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
-    super.compute(this, theSplit, context)
-  }
   override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[(K, V)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
     val iter = new Iterator[(K, V)] {

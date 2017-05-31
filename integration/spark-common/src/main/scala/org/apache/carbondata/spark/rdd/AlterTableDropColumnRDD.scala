@@ -50,17 +50,12 @@ class AlterTableDropColumnRDD[K, V](sc: SparkContext,
     @transient newColumns: Seq[ColumnSchema],
     carbonTableIdentifier: CarbonTableIdentifier,
     carbonStorePath: String)
-  extends CarbonRDD[(Int, String)](sc, Nil) with InternalCompute[(Int, String)] {
+  extends CarbonRDD[(Int, String)](sc, Nil) {
 
   override def getPartitions: Array[Partition] = {
     newColumns.zipWithIndex.map { column =>
       new DropColumnPartition(id, column._2, column._1)
     }.toArray
-  }
-
-  override def compute(split: Partition,
-      context: TaskContext): Iterator[(Int, String)] = {
-    super.compute(this, split, context)
   }
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[(Int, String)] = {

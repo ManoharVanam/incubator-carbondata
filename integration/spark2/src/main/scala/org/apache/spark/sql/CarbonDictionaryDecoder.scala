@@ -40,7 +40,7 @@ import org.apache.carbondata.core.metadata.encoder.Encoding
 import org.apache.carbondata.core.metadata.schema.table.column.CarbonDimension
 import org.apache.carbondata.core.util.DataTypeUtil
 import org.apache.carbondata.spark.CarbonAliasDecoderRelation
-import org.apache.carbondata.spark.rdd.{CarbonRDD, InternalCompute}
+import org.apache.carbondata.spark.rdd.CarbonRDD
 
 /**
  * It decodes the data.
@@ -445,7 +445,7 @@ class CarbonDecoderRDD(
     prev: RDD[InternalRow],
     output: Seq[Attribute],
     sparkSession: SparkSession)
-  extends CarbonRDD[InternalRow](prev) with InternalCompute[InternalRow] {
+  extends CarbonRDD[InternalRow](prev) {
 
   private val storepath = CarbonEnv.getInstance(sparkSession).carbonMetastore.storePath
 
@@ -512,10 +512,6 @@ class CarbonDecoderRDD(
 
     }.toArray
     dictIds
-  }
-
-  override def compute(split: Partition, context: TaskContext): Iterator[InternalRow] = {
-    super.compute(this, split, context)
   }
 
   override def internalCompute(split: Partition, context: TaskContext): Iterator[InternalRow] = {

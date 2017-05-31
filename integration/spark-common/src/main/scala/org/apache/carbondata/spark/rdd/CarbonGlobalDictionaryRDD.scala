@@ -177,16 +177,10 @@ case class ColumnDistinctValues(values: Array[String], rowCount: Long) extends S
 class CarbonAllDictionaryCombineRDD(
     prev: RDD[(String, Iterable[String])],
     model: DictionaryLoadModel)
-  extends CarbonRDD[(Int, ColumnDistinctValues)](prev) with
-    InternalCompute[(Int, ColumnDistinctValues)] {
+  extends CarbonRDD[(Int, ColumnDistinctValues)](prev) {
 
   override def getPartitions: Array[Partition] = {
     firstParent[(String, Iterable[String])].partitions
-  }
-
-  override def compute(split: Partition, context: TaskContext
-  ): Iterator[(Int, ColumnDistinctValues)] = {
-    super.compute(this, split, context)
   }
     override def internalCompute(split: Partition, context: TaskContext
   ): Iterator[(Int, ColumnDistinctValues)] = {
@@ -275,15 +269,9 @@ class StringArrayRow(var values: Array[String]) extends Row {
 class CarbonBlockDistinctValuesCombineRDD(
     prev: RDD[Row],
     model: DictionaryLoadModel)
-  extends CarbonRDD[(Int, ColumnDistinctValues)](prev) with
-    InternalCompute[(Int, ColumnDistinctValues)] {
+  extends CarbonRDD[(Int, ColumnDistinctValues)](prev) {
 
   override def getPartitions: Array[Partition] = firstParent[Row].partitions
-
-  override def compute(split: Partition,
-      context: TaskContext): Iterator[(Int, ColumnDistinctValues)] = {
-    super.compute(this, split, context)
-  }
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[(Int, ColumnDistinctValues)] = {
     val LOGGER = LogServiceFactory.getLogService(this.getClass.getName)
@@ -341,13 +329,9 @@ class CarbonBlockDistinctValuesCombineRDD(
 class CarbonGlobalDictionaryGenerateRDD(
     prev: RDD[(Int, ColumnDistinctValues)],
     model: DictionaryLoadModel)
-  extends CarbonRDD[(Int, String, Boolean)](prev) with InternalCompute[(Int, String, Boolean)]{
+  extends CarbonRDD[(Int, String, Boolean)](prev) {
 
   override def getPartitions: Array[Partition] = firstParent[(Int, ColumnDistinctValues)].partitions
-
-  override def compute(split: Partition, context: TaskContext): Iterator[(Int, String, Boolean)] = {
-    super.compute(this, split, context)
-  }
 
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[(Int, String, Boolean)] = {
@@ -548,8 +532,7 @@ class CarbonColumnDictGenerateRDD(carbonLoadModel: CarbonLoadModel,
     dimensions: Array[CarbonDimension],
     hdfsLocation: String,
     dictFolderPath: String)
-  extends CarbonRDD[(Int, ColumnDistinctValues)](sparkContext, Nil) with
-    InternalCompute[(Int, ColumnDistinctValues)] {
+  extends CarbonRDD[(Int, ColumnDistinctValues)](sparkContext, Nil) {
 
   override def getPartitions: Array[Partition] = {
     val primDimensions = dictionaryLoadModel.primDimensions
@@ -559,11 +542,6 @@ class CarbonColumnDictGenerateRDD(carbonLoadModel: CarbonLoadModel,
       result(i) = new CarbonColumnDictPatition(i, primDimensions(i))
     }
     result
-  }
-
-  override def compute(split: Partition, context: TaskContext)
-  : Iterator[(Int, ColumnDistinctValues)] = {
-    super.compute(this, split, context)
   }
   override def internalCompute(split: Partition, context: TaskContext)
   : Iterator[(Int, ColumnDistinctValues)] = {

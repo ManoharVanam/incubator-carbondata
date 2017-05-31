@@ -54,7 +54,7 @@ class CarbonScanRDD(
     filterExpression: Expression,
     identifier: AbsoluteTableIdentifier,
     @transient carbonTable: CarbonTable)
-  extends CarbonRDD[InternalRow](sc, Nil) with InternalCompute[InternalRow] {
+  extends CarbonRDD[InternalRow](sc, Nil) {
 
   private val queryId = sparkContext.getConf.get("queryId", System.nanoTime() + "")
   private val jobTrackerId: String = {
@@ -171,10 +171,6 @@ class CarbonScanRDD(
          | parallelism: $parallelism
        """.stripMargin)
     result.toArray(new Array[Partition](result.size()))
-  }
-
-  override def compute(split: Partition, context: TaskContext): Iterator[InternalRow] = {
-    super.compute(this, split, context)
   }
   override def internalCompute(split: Partition, context: TaskContext): Iterator[InternalRow] = {
     val carbonPropertiesFilePath = System.getProperty("carbon.properties.filepath", null)

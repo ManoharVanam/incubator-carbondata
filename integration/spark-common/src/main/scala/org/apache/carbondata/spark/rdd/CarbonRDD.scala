@@ -36,9 +36,11 @@ abstract class CarbonRDD[T: ClassTag](@transient sc: SparkContext,
   def this(@transient oneParent: RDD[_]) =
     this (oneParent.context, List(new OneToOneDependency(oneParent)))
 
-  def compute(internalCompute: InternalCompute[T], split: Partition,
-      context: TaskContext): Iterator[T] = {
+  // RDD compute logic should be here
+  def internalCompute(split: Partition, context: TaskContext): Iterator[T]
+
+  final def compute(split: Partition, context: TaskContext): Iterator[T] = {
     ThreadLocalSessionParams.setSessionParams(sessionParams)
-    internalCompute.internalCompute(split, context)
+    internalCompute(split, context)
   }
 }

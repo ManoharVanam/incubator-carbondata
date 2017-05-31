@@ -51,7 +51,7 @@ class AlterTableAddColumnRDD[K, V](sc: SparkContext,
     @transient newColumns: Seq[ColumnSchema],
     carbonTableIdentifier: CarbonTableIdentifier,
     carbonStorePath: String)
-  extends CarbonRDD[(Int, String)](sc, Nil) with InternalCompute[(Int, String)] {
+  extends CarbonRDD[(Int, String)](sc, Nil) {
 
   val lockType: String = CarbonProperties.getInstance.getProperty(CarbonCommonConstants.LOCK_TYPE,
     CarbonCommonConstants.CARBON_LOCK_TYPE_HDFS)
@@ -60,11 +60,6 @@ class AlterTableAddColumnRDD[K, V](sc: SparkContext,
     newColumns.zipWithIndex.map { column =>
       new AddColumnPartition(id, column._2, column._1)
     }.toArray
-  }
-
-  override def compute(split: Partition,
-      context: TaskContext): Iterator[(Int, String)] = {
-    super.compute(this, split, context)
   }
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[(Int, String)] = {

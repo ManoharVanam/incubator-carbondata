@@ -43,7 +43,7 @@ import org.apache.carbondata.hadoop.{CarbonInputFormat, CarbonInputSplit, Carbon
 import org.apache.carbondata.hadoop.util.{CarbonInputFormatUtil, SchemaReader}
 import org.apache.carbondata.processing.merger.TableMeta
 import org.apache.carbondata.spark.{CarbonFilters, CarbonOption}
-import org.apache.carbondata.spark.rdd.{CarbonRDD, InternalCompute}
+import org.apache.carbondata.spark.rdd.CarbonRDD
 import org.apache.carbondata.spark.readsupport.SparkRowReadSupportImpl
 
 private[sql] case class CarbonDatasourceHadoopRelation(
@@ -121,21 +121,13 @@ class CarbonHadoopFSRDD[V: ClassTag](
   identifier: AbsoluteTableIdentifier,
   inputFormatClass: Class[_ <: CarbonInputFormat[V]],
   valueClass: Class[V])
-  extends CarbonRDD[V](sc, Nil) with SparkHadoopMapReduceUtil with InternalCompute[V]{
+  extends CarbonRDD[V](sc, Nil) with SparkHadoopMapReduceUtil {
 
   private val jobTrackerId: String = {
     val formatter = new SimpleDateFormat("yyyyMMddHHmm")
     formatter.format(new Date())
   }
   @transient protected val jobId = new JobID(jobTrackerId, id)
-
-  @DeveloperApi
-  override def compute(split: Partition,
-      context: TaskContext): Iterator[V] = {
-    super.compute(this, split, context)
-
-  }
-
   override def internalCompute(split: Partition,
     context: TaskContext): Iterator[V] = {
     val attemptId = newTaskAttemptID(jobTrackerId, id, isMap = true, split.index, 0)

@@ -31,7 +31,7 @@ class CarbonDropTableRDD[V: ClassTag](
     valueClass: Value[V],
     databaseName: String,
     tableName: String)
-  extends CarbonRDD[V](sc, Nil) with InternalCompute[V] {
+  extends CarbonRDD[V](sc, Nil) {
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
@@ -40,9 +40,6 @@ class CarbonDropTableRDD[V: ClassTag](
     splits.zipWithIndex.map { s =>
       new CarbonLoadPartition(id, s._2, s._1)
     }
-  }
-  override def compute(theSplit: Partition, context: TaskContext): Iterator[V] = {
-    super.compute(this, theSplit, context)
   }
   override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[V] = {
 

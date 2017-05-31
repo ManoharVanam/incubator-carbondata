@@ -22,24 +22,19 @@ import scala.reflect.ClassTag
 import org.apache.spark._
 
 import org.apache.carbondata.core.util.CarbonProperties
-import org.apache.carbondata.spark.rdd.{CarbonRDD, InternalCompute}
+import org.apache.carbondata.spark.rdd.CarbonRDD
 
 case class DataLoadPartitionWrap[T: ClassTag](rdd: RDD[T], partition: Partition)
 
 class DataLoadCoalescedRDD[T: ClassTag](
     @transient var prev: RDD[T],
     nodeList: Array[String])
-  extends CarbonRDD[DataLoadPartitionWrap[T]](prev.context, Nil) with
-    InternalCompute[DataLoadPartitionWrap[T]] {
+  extends CarbonRDD[DataLoadPartitionWrap[T]](prev.context, Nil) {
 
   override def getPartitions: Array[Partition] = {
     new DataLoadPartitionCoalescer(prev, nodeList).run
   }
 
-  override def compute(split: Partition,
-      context: TaskContext): Iterator[DataLoadPartitionWrap[T]] = {
-    super.compute(this, split, context)
-  }
   override def internalCompute(split: Partition,
       context: TaskContext): Iterator[DataLoadPartitionWrap[T]] = {
 

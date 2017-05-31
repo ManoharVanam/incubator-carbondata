@@ -34,7 +34,7 @@ class CarbonCleanFilesRDD[V: ClassTag](
     databaseName: String,
     tableName: String,
     partitioner: Partitioner)
-  extends CarbonRDD[V](sc, Nil) with InternalCompute[V] {
+  extends CarbonRDD[V](sc, Nil) {
 
   sc.setLocalProperty("spark.scheduler.pool", "DDL")
 
@@ -42,10 +42,6 @@ class CarbonCleanFilesRDD[V: ClassTag](
   override def getPartitions: Array[Partition] = {
     val splits = CarbonQueryUtil.getTableSplits(databaseName, tableName, null)
     splits.zipWithIndex.map(s => new CarbonLoadPartition(id, s._2, s._1))
-  }
-
-  override def compute(theSplit: Partition, context: TaskContext): Iterator[V] = {
-    super.compute(this, theSplit, context)
   }
   override def internalCompute(theSplit: Partition, context: TaskContext): Iterator[V] = {
     val iter = new Iterator[(V)] {
